@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>Backcountry Day Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday travel planning, friendly, shown to a first-timer
+   IDEA a Forest Service trail map + a trip card you fill in at the trailhead kiosk
+   PICTURE large stylised topo map of the Temecula–Palomar–Julian backcountry with drive-time chips; a sunrise-to-dark day strip for the plan
+   COLOUR pine #1d3b2f dominant, chaparral sage fields, sunset orange #f2602b accent, lake blue support
+   TYPE Barlow Condensed (park-sign lettering) + Barlow
+   LAYOUT laptop: map left (sticky), plan right; phone: title, map, plan, options */
+:root{color-scheme:light dark;--bg:light-dark(#fbfaf6,#0f1a15);--ink:light-dark(#14231c,#e9efe9);--mut:light-dark(#56645c,#9fb0a6);--pine:light-dark(#1d3b2f,#1d3b2f);--land:light-dark(#e6ead9,#17261e);--hill:light-dark(#c9d3b4,#24382c);--line:light-dark(#d6dccb,#2b3c33);--card:light-dark(#ffffff,#15231c);--acc:#f2602b;--lake:light-dark(#7fb3d1,#2f5b73);--road:light-dark(#ffffff,#3a4a41);--hike:light-dark(#2f7a4f,#5cbf86);--town:light-dark(#b0612b,#e39a62);--drive:light-dark(#9aa59c,#56655c);--nf:light-dark(#a9c690,#22432c);--desert:light-dark(#ecd6a6,#3b3121);--sea:light-dark(#9ccbe4,#14324a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;background:var(--bg);color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Barlow Condensed",Barlow,sans-serif;line-height:1.05;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(34px,5vw,50px);font-weight:700;text-wrap:balance}
+h2{font-size:28px;font-weight:600}
+h3{font-size:21px;font-weight:600}
+header{background:var(--pine);color:#f4f1e6;padding:calc(22px + env(safe-area-inset-top,0px)) max(4vw,16px,env(safe-area-inset-right,0px)) 20px max(4vw,16px,env(safe-area-inset-left,0px))}
+header p{margin:8px 0 0;max-width:70ch;color:#cfdccf}
+.wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;padding:24px max(4vw,16px) 40px;max-width:1400px;margin:0 auto}
+.mapcol{position:sticky;top:12px;align-self:start}
+.fig{position:relative;height:min(74svh,640px);min-height:380px;border-radius:14px;overflow:hidden;background:var(--land);border:1px solid var(--line)}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{paint-order:stroke;stroke:var(--land);stroke-width:4px;stroke-linejoin:round}
+.maphint{font-size:14px;color:var(--mut);margin:8px 2px 0}
+.poi{cursor:pointer}
+.poi:focus{outline:none}.poi:focus circle.ring{stroke:var(--acc);stroke-width:3}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--mut);margin-top:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end;margin:12px 0 4px}
+label.f{display:grid;gap:4px;font-size:14px;color:var(--mut)}
+select,button{font:inherit;font-size:16px;color:var(--ink);touch-action:manipulation}
+select{-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px!important}
+select{min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+button{white-space:nowrap;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+@media(hover:hover){button:hover{border-color:var(--ink)}}
+button:active{transform:scale(.97)}
+button:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.primary{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.primary:hover{border-color:#b9431a;background:#e0541f}
+.icon{min-width:44px;padding:0;font-size:18px;line-height:1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(6.2em,1fr));gap:10px;margin:14px 0}
+.stat b{display:block;font:600 30px/1 "Barlow Condensed",sans-serif;white-space:nowrap}
+.stat span{font-size:14px;color:var(--mut)}
+.strip{position:relative;height:34px;border-radius:8px;background:light-dark(#eef1e6,#1b2b22);overflow:hidden;margin-top:4px}
+.strip div{position:absolute;top:0;bottom:0}
+.strip .dark{background:repeating-linear-gradient(135deg,light-dark(#1d3b2f33,#00000066) 0 6px,transparent 6px 12px);border-left:2px solid var(--acc)}
+.ticks{position:relative;height:18px;font-size:13px;color:var(--mut)}
+.ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.plan{list-style:none;margin:16px 0 0;padding:0}
+.plan li{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:12px;align-items:start}
+.t{font:600 20px/1.2 "Barlow Condensed",sans-serif;text-align:right;white-space:nowrap;padding-top:2px}
+.leg{color:var(--mut);font-size:14px;padding:4px 0 6px;border-left:2px dashed var(--drive);margin-left:calc(5.6em + 17px);padding-left:12px}
+.stop{border-left:4px solid var(--hike);padding:6px 0 10px 12px}
+.stop.town{border-color:var(--town)}
+.stop.home{border-color:var(--ink)}
+.stoprow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}
+.stoprow .btns{display:flex;gap:6px;flex-wrap:wrap}
+.dur{display:inline-flex;align-items:center;gap:4px;font-size:15px;white-space:nowrap}
+.dur button{min-width:36px;min-height:36px;padding:0}
+.warn{font-size:14px;color:light-dark(#a33a10,#ff9b6f);margin-top:4px}
+.empty{padding:18px;border:2px dashed var(--line);border-radius:12px;color:var(--mut);text-align:center;margin-top:14px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.presets button{font-size:15px;white-space:normal;text-align:left;padding:8px 12px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(15em,1fr));gap:12px;margin-top:12px}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.pic{margin:-14px -14px 4px;height:130px;border-radius:11px 11px 0 0;overflow:hidden}
+.pic svg{display:block;width:100%;height:100%}
+.opt .meta{font-size:14px;color:var(--mut)}
+.opt p{margin:0;font-size:15px}
+.opt .row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:6px}
+.tag{display:inline-block;font-size:13px;font-weight:600;padding:1px 8px;border-radius:99px;background:light-dark(#e3efe6,#1f3a2b);color:var(--hike)}
+.tag.town{background:light-dark(#f6e6da,#3a2a1e);color:var(--town)}
+.lnk{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);color:var(--hike);font-weight:600;text-decoration:none;white-space:nowrap}
+.lnk:hover{border-color:var(--hike)}
+.mode{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin-top:12px;flex-wrap:wrap}
+.mode button{border:0;background:transparent}
+.mode button[aria-pressed=true]{background:light-dark(#1d3b2f,#2f7a4f);color:#fff;font-weight:600}
+.day{font:600 22px/1.1 "Barlow Condensed",sans-serif;margin:16px 0 4px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.stop.base{border-color:var(--pine)}
+.cmp{font-size:15px;margin:-4px 0 10px;padding:8px 12px;border-radius:10px;background:light-dark(#e3efe6,#1f3a2b)}
+.chk{font-size:14px;color:light-dark(#a33a10,#ff9b6f)}
+.added{background:var(--pine);color:#fff;border-color:var(--pine)}
+section{margin-top:28px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;font-size:14px;width:100%}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:600;color:var(--mut)}
+.note{font-size:14px;color:var(--mut);margin-top:8px}
+.good{font-size:14px;color:var(--mut)}
+@media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}.mapcol{position:static}.fig{height:62svh;min-height:340px}}
+@media(max-width:600px){.plan li{grid-template-columns:4.6em minmax(0,1fr)}.leg{margin-left:calc(4.6em + 17px)}.t{font-size:18px}table{font-size:13px}th,td{padding:6px 4px}}
+.mbar{display:none}
+@media(max-width:900px){
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));gap:20px}
+.fig{height:min(56svh,460px);min-height:320px}
+.mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;align-items:center;justify-content:space-between;gap:12px;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);transition:transform .25s}
+.mbar.off{transform:translateY(110%)}
+.mbar b{font:600 22px/1.1 "Barlow Condensed",sans-serif;display:block;white-space:nowrap}
+.mbar span{font-size:14px;color:var(--mut)}
+}
+@media(max-width:600px){
+header h1{font-size:32px}
+header p{font-size:15px}
+.panel{padding:16px 14px;border-radius:12px}
+.mode{display:flex;width:100%}.mode button{flex:1}
+.controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.controls label.f{grid-column:span 1}
+.controls select{width:100%}
+.controls #lStart,.controls label.f:has(#base),.controls label.f:has(#satStop),.controls label.f:has(#traffic){grid-column:1/-1}
+.ticks span:first-child{transform:none}
+.presets{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px -14px 0;padding:0 14px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.presets::-webkit-scrollbar{display:none}
+.presets button{flex:none;width:min(72vw,260px);scroll-snap-align:start;min-height:56px}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat b{font-size:26px}
+.stoprow .btns button{min-width:40px;min-height:40px}
+.opts{grid-template-columns:minmax(0,1fr)}
+.pic{height:120px}
+section{margin-top:24px}
+#matrix td:first-child,#matrix th:first-child{position:sticky;left:0;background:var(--bg)}
+}
+@media(prefers-reduced-motion:no-preference){.route{stroke-dasharray:6 7;animation:march 1.2s linear infinite}@keyframes march{to{stroke-dashoffset:-13}}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pick our Sunday in the backcountry</h1>
+  <p>Add stops below and the plan works out the clock, including the drive there and back.</p>
+</header>
+
+<div class="wrap">
+  <div class="mapcol">
+    <div class="fig" id="fig"><svg id="map" role="img" aria-label="Map of trails and towns with drive times"></svg></div>
+    <p class="maphint" id="hint">Tap any point to see drive times from it. The orange line is our current plan.</p>
+    <div class="legend"><span><i style="background:var(--hike)"></i>Trailhead</span><span><i style="background:var(--town)"></i>Town / wine / Safari Park</span><span><i style="background:var(--acc)"></i>Our route</span><span id="lgSat" hidden><i style="background:var(--pine)"></i>Saturday drive (dotted)</span><span><i style="background:var(--nf);border:1.5px dashed var(--hike);border-radius:3px"></i>Cleveland National Forest</span><span><i style="background:var(--desert);border-radius:3px"></i>Anza-Borrego Desert State Park</span></div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Our day</h2>
+      <div class="mode" role="group" aria-label="Trip type"><button data-mode="0">Day trip</button><button data-mode="1">Stay Saturday night</button></div>
+      <div class="controls">
+        <label class="f" id="lStart">Leave LA<select id="start"></select></label>
+        <label class="f ov">Stay at<select id="base"></select></label>
+        <label class="f ov">Leave LA Saturday<select id="sat"></select></label>
+        <label class="f ov">Head out Sunday<select id="sun"></select></label>
+        <label class="f ov">Saturday stop on the way<select id="satStop"><option value="">None</option><option value="ot">Old Town dinner</option><option value="wc">Wine tasting + dinner</option><option value="ju">Julian dinner</option><option value="sp">Safari Park</option></select></label>
+        <label class="f">Sunday drive home<select id="traffic"><option value="0">Light traffic</option><option value="20" selected>Typical (+20 min)</option><option value="45">Heavy (+45 min)</option></select></label>
+        <button id="copy">Copy plan</button>
+        <button id="clear">Clear</button>
+      </div>
+      <div class="good">Quick picks:</div>
+      <div class="presets" id="presets"></div>
+      <div class="stats" id="stats"></div>
+      <div class="cmp" id="cmp" hidden></div>
+      <div class="strip" id="strip" aria-label="Day timeline with sunset"></div>
+      <div class="ticks" id="ticks"></div>
+      <ol class="plan" id="plan"></ol>
+      <div class="note">Early December: sunrise about 6:45 AM, sunset about 4:45 PM, dark by 5:15. Drive times are typical Sunday estimates from downtown LA.</div>
+    </div>
+
+    <section>
+      <h2>Trails</h2>
+      <div class="opts" id="hikes"></div>
+    </section>
+    <section>
+      <h2>Towns, wine and wildlife</h2>
+      <div class="opts" id="towns"></div>
+    </section>
+    <section>
+      <h2>Where to stay Saturday</h2>
+      <div class="opts" id="stays"></div>
+    </section>
+    <section>
+      <h3>Drive times between stops</h3>
+      <div class="scroll"><table id="matrix"></table></div>
+      <div class="note">Good to know: Palomar sits around 5,500 ft and can be near freezing or snowy in December; bring layers and check road conditions on S6/S7. Agua Tibia trailhead needs a National Forest Adventure Pass; Palomar Mountain State Park charges a day-use fee. Check Palomar Observatory visitor hours before going.</div>
+    </section>
+  </div>
+</div>
+<div class="mbar off" id="mbar"><div><b id="mbHome"></b><span id="mbSub"></span></div><button class="primary" id="mbGo">See our plan</button></div>
+
+<script>
+{
+const P={
+ la:{n:"Los Angeles",short:"LA",lat:34.05,lon:-118.24},
+ po:{url:"https://www.alltrails.com/trail/us/california/palomar-observatory-trail",n:"Palomar Observatory Trail",short:"Observatory Trail",k:"hike",lat:33.345,lon:-116.868,mi:5,dur:180,lvl:"Moderate",area:"Cleveland National Forest",side:"r",
+   d:"Climbs through oak and pine forest to the white dome of the 200-inch Hale Telescope. Cool, shady, and you get to see a famous observatory at the top."},
+ pb:{url:"https://www.alltrails.com/trail/us/california/boucher-trail-and-palomar-mountain-loop",n:"Boucher Trail + Palomar Mtn loop",short:"Boucher loop",k:"hike",lat:33.333,lon:-116.905,mi:9,dur:300,lvl:"Moderate–long",area:"Palomar Mountain State Park",side:"l",
+   d:"Longer loop through mountain meadows and big cedars and firs, with the Boucher Hill lookout. On a clear day you can see west toward the ocean."},
+ er:{url:"https://www.alltrails.com/trail/us/california/eagle-rock-via-pacific-crest-trail",n:"Eagle Rock via the PCT",short:"Eagle Rock",k:"hike",lat:33.282,lon:-116.635,mi:6.5,dur:240,lvl:"Easy",area:"Warner Springs",side:"r",
+   d:"Gentle walk on the Pacific Crest Trail beside a creek, through oak groves and open grassland, to a granite outcrop shaped like an eagle with spread wings."},
+ at:{url:"https://www.alltrails.com/trail/us/california/agua-tibia-mountain-via-dripping-springs-trail",n:"Agua Tibia via Dripping Springs",short:"Agua Tibia",k:"hike",lat:33.463,lon:-116.972,mi:14,dur:480,lvl:"Hard",area:"Agua Tibia Wilderness",side:"r",
+   d:"The big one: long switchbacks climbing out of the Temecula valley to the Agua Tibia ridge. Steep, sunny and long — needs a dawn start to finish in daylight."},
+ ju:{n:"Julian",short:"Julian",k:"town",lat:33.078,lon:-116.602,dur:120,area:"Historic gold-rush town",side:"l",
+   d:"Little 1870s mountain town: apple pie, cider, a walkable main street of old storefronts and shops. Very cozy in winter."},
+ sp:{n:"San Diego Zoo Safari Park",short:"Safari Park",k:"town",tag:"Wildlife",lat:33.097,lon:-116.997,dur:240,area:"San Pasqual Valley, Escondido",side:"r",
+   d:"Huge open-range wildlife park — giraffes, rhinos and antelope roaming savanna-style habitats, plus a big walk-through aviary. Plan a few hours; check closing time and tickets ahead."},
+ ot:{n:"Old Town Temecula",short:"Old Town",k:"town",lat:33.494,lon:-117.148,dur:90,area:"Temecula",side:"l",
+   d:"Western-style main street with wooden sidewalks, restaurants, breweries and shops. Easy, flat and lively in the evening."},
+ wc:{n:"Temecula wine country",short:"Wine country",k:"town",lat:33.545,lon:-117.05,dur:150,area:"Rancho California Rd",side:"r",
+   d:"Rolling vineyards with dozens of wineries. Tastings, then dinner at a winery restaurant. Tasting rooms often close around 5–6 PM, so time it."}
+};
+const ART=(()=>{
+let uid=0;
+const rnd=s=>()=>(s=s*16807%2147483647)/2147483647;
+const sky=(a,b)=>{const id="sk"+(uid++);return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="320" height="160" fill="url(#${id})"/>`};
+const ridge=(y,amp,col,seed,step=40)=>{const r=rnd(seed);let d=`M0,160 L0,${y}`;let px=0,py=y;for(let x=step;x<=320+step;x+=step){const ny=y+(r()-.5)*amp*2;d+=` Q${px+step/2},${(py+ny)/2+(r()-.5)*amp} ${x},${ny}`;px=x;py=ny}return `<path d="${d} L320,160Z" fill="${col}"/>`};
+const pine=(x,y,h,c)=>`<path d="M${x},${y-h} L${x+h*.22},${y-h*.45} L${x+h*.12},${y-h*.45} L${x+h*.3},${y} L${x-h*.3},${y} L${x-h*.12},${y-h*.45} L${x-h*.22},${y-h*.45}Z" fill="${c}"/>`;
+const pines=(n,y0,y1,h0,h1,c,seed,x0=0,x1=320)=>{const r=rnd(seed);let o="";for(let i=0;i<n;i++){const y=y0+r()*(y1-y0);o+=pine(x0+r()*(x1-x0),y,h0+r()*(h1-h0),c)}return o};
+const oak=(x,y,s,c,t="#5a4630")=>`<rect x="${x-1.5*s}" y="${y-8*s}" width="${3*s}" height="${8*s}" fill="${t}"/><circle cx="${x-6*s}" cy="${y-11*s}" r="${7*s}" fill="${c}"/><circle cx="${x+6*s}" cy="${y-12*s}" r="${7.5*s}" fill="${c}"/><circle cx="${x}" cy="${y-17*s}" r="${8*s}" fill="${c}"/>`;
+const tent=(x,y,s,c)=>`<path d="M${x-22*s},${y} L${x},${y-26*s} L${x+22*s},${y}Z" fill="${c}"/><path d="M${x},${y-26*s} L${x+22*s},${y} L${x+8*s},${y}Z" fill="#000" fill-opacity=".18"/><path d="M${x},${y-14*s} L${x-6*s},${y} L${x+6*s},${y}Z" fill="#2a1a10" fill-opacity=".7"/>`;
+const stars=(n,seed,y1=80)=>{const r=rnd(seed);let o="";for(let i=0;i<n;i++)o+=`<circle cx="${r()*320}" cy="${r()*y1}" r="${r()*1.1+.4}" fill="#fff" fill-opacity="${.5+r()*.5}"/>`;return o};
+const sun=(x,y,r,c)=>`<circle cx="${x}" cy="${y}" r="${r*1.8}" fill="${c}" fill-opacity=".25"/><circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`;
+const fire=(x,y)=>`<circle cx="${x}" cy="${y-4}" r="10" fill="#ffb347" fill-opacity=".25"/><path d="M${x-4},${y} Q${x},${y-14} ${x+4},${y}Z" fill="#ffb347"/><path d="M${x-6},${y+1} L${x+6},${y-1}" stroke="#5a3a22" stroke-width="2"/>`;
+const store=(x,w,h,c,trim,y=128)=>{let o=`<rect x="${x}" y="${y-h}" width="${w}" height="${h}" fill="${c}"/><rect x="${x-2}" y="${y-h}" width="${w+4}" height="4" fill="${trim}"/>`;for(let i=0;i<Math.floor(w/14);i++)o+=`<rect x="${x+5+i*14}" y="${y-h+10}" width="7" height="10" fill="#fff4d6" fill-opacity=".85"/>`;o+=`<rect x="${x+w/2-5}" y="${y-16}" width="10" height="16" fill="#3a2618"/><rect x="${x-3}" y="${y-22}" width="${w+6}" height="3" fill="${trim}"/>`;return o};
+const S={
+po:()=>sky("#8fcbea","#e6f3f6")+ridge(62,8,"#9db8a8",3)+ridge(84,10,"#5f8a6a",7)+`<rect x="196" y="58" width="44" height="22" fill="#e9eef1"/><path d="M196,58 A22,22 0 0 1 240,58Z" fill="#fff"/><path d="M218,36 L218,58" stroke="#b9c6cc" stroke-width="3"/><path d="M228,40 A22,22 0 0 1 240,58 L196,58" fill="#000" fill-opacity=".06"/>`+ridge(110,6,"#3c6b4c",11)+pines(14,112,150,26,44,"#24492f",5,0,180)+pines(5,118,150,26,40,"#24492f",6,250,320)+ridge(140,4,"#1d3b2a",13),
+pb:()=>sky("#a5d5ef","#eef7f8")+ridge(70,14,"#93ad98",17)+`<path d="M40,92 Q90,40 150,92Z" fill="#6d9472"/><path d="M84,58 L80,74 M96,58 L100,74 M80,74 L100,74 M82,66 L98,66" stroke="#4a3a2a" stroke-width="2"/><rect x="80" y="46" width="20" height="13" fill="#7a5638"/><path d="M77,47 L90,39 L103,47Z" fill="#5a3e2a"/>`+ridge(112,6,"#c4c97d",21)+pines(9,100,140,34,54,"#2d5638",9,190,320)+pines(5,104,140,30,46,"#2d5638",19,0,60)+ridge(144,3,"#a9b065",23),
+er:()=>sky("#b8def0","#f6edd5")+ridge(78,10,"#aab78f",29)+ridge(102,6,"#d8c37f",31)+`<path d="M0,140 Q80,122 160,134 T320,124 L320,132 Q240,138 160,142 T0,148Z" fill="#7fb7d4"/>`+`<path d="M170,118 Q178,90 196,88 Q204,78 214,88 Q232,90 240,118Z" fill="#a99f8b" stroke="#7d735f" stroke-width="1.5"/><path d="M196,88 Q166,68 140,90 Q156,106 182,104Z" fill="#9c927e" stroke="#7d735f" stroke-width="1.5"/><path d="M214,88 Q244,66 270,90 Q254,106 228,104Z" fill="#9c927e" stroke="#7d735f" stroke-width="1.5"/><path d="M200,88 Q205,96 210,88 Q214,104 205,118 Q196,104 200,88Z" fill="#000" fill-opacity=".08"/>`+oak(40,124,1.4,"#5d7d45")+oak(290,118,1.2,"#5d7d45")+oak(110,122,.9,"#6d8c4f")+ridge(150,3,"#c8ac63",37),
+at:()=>sky("#f5a86f","#fde3c0")+sun(250,54,13,"#fff1c9")+`<path d="M0,160 L0,120 L70,100 L150,52 L200,34 L245,62 L320,80 L320,160Z" fill="#8c8a5c"/><path d="M200,34 L245,62 L320,80 L320,160 L230,160Z" fill="#000" fill-opacity=".1"/><path d="M60,150 L150,132 L95,118 L170,98 L130,86 L190,66 L165,56 L203,40" fill="none" stroke="#f3dfb1" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="1 0"/>`+(()=>{const r=rnd(41);let o="";for(let i=0;i<40;i++){const x=r()*320,y=90+r()*70;o+=`<circle cx="${x}" cy="${y}" r="${2+r()*3}" fill="#5f6b3c" fill-opacity=".7"/>`}return o})(),
+ju:()=>sky("#a8d4ec","#eef6f8")+pines(16,70,100,30,46,"#4f7356",43)+ridge(100,4,"#7a9a70",47)+store(28,54,48,"#b8693a","#7a3f1e")+store(88,64,60,"#e6d2a6","#9c7a4a")+store(158,50,44,"#6f8f6b","#3f5a3c")+`<rect x="0" y="128" width="320" height="32" fill="#9b8a6e"/><rect x="0" y="128" width="320" height="5" fill="#6e5a40"/>`+oak(262,128,1.6,"#5e8a45")+[[250,98],[266,95],[272,104],[256,107],[244,104]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.6" fill="#d23a2a"/>`).join(""),
+ot:()=>sky("#f0a06a","#fbe0bf")+ridge(98,6,"#c79a72",53)+store(10,60,62,"#8a5a3c","#5a3a24")+store(76,54,50,"#c99659","#8a5f2e")+store(136,68,70,"#6b4a3a","#3e2a20")+store(210,52,54,"#b2643c","#6e3a1e")+store(268,50,46,"#d6b07a","#8a6a3a")+`<path d="M0,72 Q80,86 160,74 T320,76" fill="none" stroke="#3a2a20" stroke-width="1"/>`+Array.from({length:16},(_,i)=>`<circle cx="${i*20+10}" cy="${78+Math.sin(i*.8)*4}" r="2.2" fill="#ffe08a"/>`).join("")+`<rect x="0" y="128" width="320" height="32" fill="#7a5a3e"/>`+Array.from({length:16},(_,i)=>`<rect x="${i*20}" y="128" width="1.5" height="32" fill="#5a3e28"/>`).join(""),
+wc:()=>sky("#f4bd76","#fdebd0")+sun(80,62,14,"#fff3d0")+ridge(78,10,"#b6a77a",59)+ridge(96,8,"#8fa463",61)+`<rect x="210" y="74" width="52" height="22" fill="#efe3cc"/><path d="M205,76 L236,62 L267,76Z" fill="#b5532f"/><rect x="230" y="84" width="10" height="12" fill="#6b4a32"/>`+(()=>{let o=`<path d="M0,160 L0,104 Q160,92 320,104 L320,160Z" fill="#7d9550"/>`;for(let i=-10;i<=18;i++){const xb=160+i*26;o+=`<path d="M160,98 L${xb},160" stroke="#4f6a32" stroke-width="${2+Math.abs(i)*.15}"/>`}return o})(),
+sp:()=>sky("#f6d396","#fdf0d6")+sun(260,58,16,"#fff4d4")+ridge(96,6,"#cfae67",67)+`<path d="M60,104 L64,72" stroke="#4a3a24" stroke-width="4"/><path d="M28,72 Q64,56 102,72 Q64,78 28,72Z" fill="#4f5a2e"/>`+`<g fill="#c98a3a"><ellipse cx="200" cy="108" rx="22" ry="10"/><path d="M212,104 L226,60 L233,62 L222,106Z"/><ellipse cx="232" cy="58" rx="9" ry="4.5" transform="rotate(20 232 58)"/><rect x="183" y="112" width="3.5" height="26"/><rect x="191" y="114" width="3.5" height="24"/><rect x="207" y="113" width="3.5" height="25"/><rect x="215" y="111" width="3.5" height="27"/></g><g fill="#8a5a22">${[[194,104],[204,110],[212,102],[219,86],[223,74],[190,112]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.6"/>`).join("")}</g>`+ridge(136,3,"#d9bc72",71)+`<g fill="#7a6a4a"><ellipse cx="120" cy="134" rx="12" ry="5"/><ellipse cx="141" cy="136" rx="10" ry="4.5"/></g>`,
+c_ds:()=>sky("#7ea6c8","#f3c896")+`<path d="M0,160 L0,46 Q40,60 70,96 L110,160Z" fill="#b38960"/><path d="M320,160 L320,40 Q280,62 250,96 L210,160Z" fill="#a37a54"/>`+ridge(130,4,"#9a8a62",73)+oak(78,132,1.5,"#87a46a","#e8e0d0")+oak(256,130,1.3,"#87a46a","#e8e0d0")+tent(160,136,1.3,"#f2602b")+fire(205,138),
+c_pal:()=>sky("#0d1b2e","#2f4766")+stars(50,79)+ridge(110,6,"#16301f",83)+pines(18,96,150,40,70,"#0f2418",89)+`<rect x="0" y="140" width="320" height="20" fill="#18301f"/><circle cx="160" cy="134" r="34" fill="#f2a640" fill-opacity=".14"/>`+tent(160,142,1.2,"#f2a640")+`<circle cx="70" cy="146" r="1.5" fill="#fff" fill-opacity=".6"/>`,
+c_jul:()=>sky("#1a2442","#4b5679")+stars(40,97)+`<circle cx="250" cy="38" r="12" fill="#f4efd8"/><circle cx="255" cy="35" r="11" fill="#1f2a4a" fill-opacity=".9"/>`+ridge(112,8,"#232d3f",101)+oak(60,140,2,"#1d2a2a","#14191a")+oak(268,142,1.6,"#1d2a2a","#14191a")+`<rect x="0" y="140" width="320" height="20" fill="#202a30"/>`+tent(160,144,1.2,"#f2602b")+fire(210,146),
+c_tem:()=>sky("#e5957a","#f8d3a6")+ridge(92,10,"#b68f7a",107)+ridge(112,6,"#9a8a6a",109)+`<rect x="120" y="92" width="86" height="44" fill="#efe1c8"/><path d="M112,94 L163,66 L214,94Z" fill="#a8553a"/><rect x="132" y="104" width="16" height="14" fill="#ffd27a"/><rect x="178" y="104" width="16" height="14" fill="#ffd27a"/><rect x="156" y="112" width="14" height="24" fill="#6b4a32"/><path d="M262,136 Q258,100 266,66" stroke="#6b5a3e" stroke-width="5" fill="none"/>`+[[-40,-6],[-15,-14],[15,-14],[40,-6],[0,-18]].map(([dx,dy])=>`<path d="M266,66 Q${266+dx/2},${66+dy-6} ${266+dx},${66+dy+14}" stroke="#4f6a3a" stroke-width="4" fill="none" stroke-linecap="round"/>`).join("")+`<rect x="0" y="136" width="320" height="24" fill="#8a9a5a"/>`
+};
+return id=>S[id]?`<svg viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${S[id]()}</svg>`:"";
+})();
+
+const IDS=["po","pb","er","at","ju","ot","wc","sp"];
+const T={sp:{la:120,ot:45,wc:55,at:65,po:55,pb:60,er:60,ju:55},la:{ot:90,wc:100,at:105,po:145,pb:150,er:150,ju:165},ot:{wc:15,at:25,po:60,pb:60,er:55,ju:80},wc:{at:20,po:60,pb:60,er:45,ju:80},at:{po:50,pb:50,er:40,ju:65},po:{pb:10,er:45,ju:60},pb:{er:50,ju:65},er:{ju:30}};
+const tb=(a,b)=>a===b?0:(T[a]&&T[a][b])??(T[b]&&T[b][a])??0;
+const B={
+ c_ds:{n:"Dripping Springs Campground",short:"Dripping Springs camp",kind:"Campground",icon:"tent",lat:33.492,lon:-116.94,near:"at",add:0,self:{at:3},la:105,side:"r",
+   elev:"About 1,600 ft, the mildest nights of the four",d:"National forest campground right at the Agua Tibia trailhead. Walk out of the tent and start the big hike at first light.",chk:"Check it's open in December and how sites are booked; an Adventure Pass may be needed."},
+ c_pal:{n:"Palomar Mountain campgrounds",short:"Palomar camp",kind:"Campground",icon:"tent",lat:33.322,lon:-116.86,near:"po",add:5,self:{po:5,pb:10},la:150,side:"r",
+   elev:"About 4,500–5,500 ft, expect below-freezing nights",d:"Observatory Campground (national forest) sits at the start of the Observatory Trail; Doane Valley in Palomar Mountain State Park is minutes from the Boucher loop. Tall pines, very quiet.",chk:"Some sites close for winter and snow is possible; check which campground is open and reserve ahead."},
+ c_jul:{n:"Campground near Julian",short:"Julian camp",kind:"Campground",icon:"tent",lat:33.04,lon:-116.585,near:"ju",add:10,self:{ju:10,er:40},la:175,side:"r",
+   elev:"About 4,000 ft, cold nights",d:"Something like William Heise County Park: oak and pine woods about 10 minutes from town, so dinner and pie in Julian Saturday night.",chk:"Check availability and reservations with the campground."},
+ c_tem:{n:"Friend's place in Temecula",short:"Friend's place",kind:"Free",icon:"house",lat:33.515,lon:-117.115,near:"ot",add:5,self:{ot:10,wc:15,at:25},la:95,side:"r",
+   elev:"Indoors, warm, real shower",d:"Free bed and the most central base: 10 minutes to Old Town, 25 to Agua Tibia, about an hour to Palomar, Warner Springs or the Safari Park.",chk:"Confirm with our friend."}
+};
+const BIDS=Object.keys(B);
+const bt=(b,x)=>x==="la"?B[b].la:B[x]?tb(B[b].near,B[x].near)+B[b].add+B[x].add:(B[b].self[x]??tb(B[b].near,x)+B[b].add);
+const tt=(a,b)=>a===b?0:B[a]?bt(a,b):B[b]?bt(b,a):tb(a,b);
+const nm=id=>(P[id]||B[id]).n;
+const SATDUR={ot:90,wc:150,ju:90,sp:240};
+const SUNSET=16*60+45,DARK=17*60+15;
+const PRESETS=[
+ {n:"Overnight: Dripping Springs → Agua Tibia early start → Old Town",ov:1,base:"c_ds",satStop:"ot",satLeave:900,sun:450,s:["at","ot"]},
+ {n:"Overnight: Temecula wine night → Palomar loop → Julian",ov:1,base:"c_tem",satStop:"wc",satLeave:780,sun:450,s:["pb","ju"]},
+ {n:"Overnight: Camp Palomar → Observatory Trail → Safari Park",ov:1,base:"c_pal",satStop:"ot",satLeave:870,sun:450,s:["po","sp"]},
+ {n:"Overnight: Camp near Julian → Eagle Rock → Julian pie",ov:1,base:"c_jul",satStop:"ju",satLeave:780,sun:450,s:["er","ju"]},
+ {n:"Day trip: Easy hike + Julian pie",s:["er","ju"],t:450},
+ {n:"Day trip: Observatory + wine dinner",s:["po","wc"],t:450},
+ {n:"Day trip: Palomar loop + Old Town",s:["pb","ot"],t:450},
+ {n:"Day trip: Big summit + Old Town",s:["at","ot"],t:450}
+];
+let st={ov:false,base:"c_tem",satLeave:900,satStop:"",sunStart:450,start:450,traffic:20,stops:[{id:"er",dur:240},{id:"ju",dur:120}],sel:null};
+try{const s=JSON.parse(localStorage.getItem("dtrip")||"null");if(s&&Array.isArray(s.stops))st={...st,...s,sel:null};st.start=Math.max(450,st.start);st.sunStart=Math.max(450,st.sunStart)}catch(e){}
+const save=()=>{try{localStorage.setItem("dtrip",JSON.stringify({start:st.start,traffic:st.traffic,stops:st.stops,ov:st.ov,base:st.base,satLeave:st.satLeave,satStop:st.satStop,sunStart:st.sunStart}))}catch(e){}};
+const $=id=>document.getElementById(id);
+const fm=m=>{m=Math.round(m);const h=Math.floor(m/60),r=m%60;return h?(r?`${h}h ${r}m`:`${h}h`):`${r}m`};
+const clock=m=>{m=Math.round(m);let h=Math.floor(m/60)%24,r=m%60,ap=h>=12?"PM":"AM";h=h%12||12;return `${h}:${String(r).padStart(2,"0")} ${ap}`};
+
+$("start").innerHTML=Array.from({length:6},(_,i)=>450+i*30).map(m=>`<option value="${m}">${clock(m)}</option>`).join("");
+$("sat").innerHTML=Array.from({length:19},(_,i)=>600+i*30).map(m=>`<option value="${m}">${clock(m)}</option>`).join("");
+$("sun").innerHTML=Array.from({length:6},(_,i)=>450+i*30).map(m=>`<option value="${m}">${clock(m)}</option>`).join("");
+$("base").innerHTML=BIDS.map(b=>`<option value="${b}">${B[b].n}</option>`).join("");
+$("presets").innerHTML=PRESETS.map((p,i)=>`<button data-p="${i}">${p.n}</button>`).join("");
+
+function compute(){
+  const ov=st.ov,s0=ov?st.sunStart:st.start,from=ov?st.base:"la";
+  let t=s0,prev=from,out=[],drive=0,trail=0;
+  for(const s of st.stops){const d=tt(prev,s.id);drive+=d;const arr=t+d;out.push({...s,d,arr,dep:arr+s.dur});if(P[s.id].k==="hike")trail+=s.dur;t=arr+s.dur;prev=s.id}
+  const back=st.stops.length?tt(prev,"la")+st.traffic:0;drive+=back;
+  let sat=null,gain=null;
+  if(ov){let t2=st.satLeave,pv="la",legs=[];if(st.satStop){const d=tt("la",st.satStop),du=SATDUR[st.satStop];legs.push({id:st.satStop,d,arr:t2+d,dur:du,dep:t2+d+du});t2+=d+du;pv=st.satStop}
+    const d2=tt(pv,st.base);sat={legs,d:d2,from:pv,arr:t2+d2}}
+  if(ov&&st.stops.length){const f=st.stops[0].id;gain={id:f,day:st.start+tt("la",f),ov:st.sunStart+tt(st.base,f)}}
+  return {legs:out,back,home:t+back,drive,trail,total:t+back-s0,s0,from,sat,gain};
+}
+
+function renderPlan(){
+  $("start").value=st.start;$("traffic").value=st.traffic;$("base").value=st.base;$("sat").value=st.satLeave;$("satStop").value=st.satStop;$("sun").value=st.sunStart;
+  document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.mode===+st.ov)));
+  document.querySelectorAll(".ov").forEach(e=>e.hidden=!st.ov);$("lStart").hidden=st.ov;$("lgSat").hidden=!st.ov;
+  const c=compute(),L=c.legs;
+  $("mbHome").textContent=L.length?`Home ${clock(c.home)}`:"No stops yet";$("mbSub").textContent=L.length?`${L.length} stop${L.length>1?"s":""} · ${fm(c.trail)||"0m"} on trail${st.ov?" · overnight":""}`:"Add a trail to start";
+  const cmp=$("cmp");cmp.hidden=!c.gain;
+  if(c.gain){const g=c.gain.day-c.gain.ov;cmp.textContent=`Staying over: at ${P[c.gain.id].short} by ${clock(c.gain.ov)} Sunday, vs ${clock(c.gain.day)} on a day trip leaving LA at ${clock(st.start)}` + (g>0?` (${fm(g)} earlier).`:".")}
+  $("stats").innerHTML=L.length?[
+    [clock(c.home),"Back in LA"],[fm(c.trail)||"0m","On the trail"],[fm(c.drive),st.ov?"Sunday driving":"Driving"],[fm(c.total),st.ov?"Sunday, camp to home":"Whole day"]
+  ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join(""):"";
+  // strip
+  const a=Math.min(c.s0,360),z=Math.max(c.home,DARK+60,1260),W=z-a,pc=m=>((m-a)/W*100).toFixed(2)+"%";
+  let seg="";let t=c.s0;
+  for(const l of L){seg+=`<div style="left:${pc(t)};width:${pc(a+l.d)};background:var(--drive)" title="Drive"></div>`;seg+=`<div style="left:${pc(l.arr)};width:${pc(a+l.dur)};background:var(--${P[l.id].k})" title="${P[l.id].short}"></div>`;t=l.dep}
+  if(L.length)seg+=`<div style="left:${pc(t)};width:${pc(a+c.back)};background:var(--drive)" title="Drive home"></div>`;
+  seg+=`<div class="dark" style="left:${pc(SUNSET)};right:0"></div>`;
+  $("strip").innerHTML=seg;
+  const tk=[];for(let m=Math.ceil(a/120)*120;m<=z;m+=120)tk.push(m);
+  $("ticks").innerHTML=tk.map(m=>`<span style="left:${pc(m)}">${clock(m).replace(":00","")}</span>`).join("")+`<span style="left:${pc(SUNSET)};color:var(--acc);top:0;transform:translateX(4px)"></span>`;
+  if(!L.length){$("plan").innerHTML=`<li style="display:block"><div class="empty">Nothing planned yet. Add a trail below, or tap a quick pick.</div></li>`;drawMap();return}
+  let h="";
+  if(st.ov){const S=c.sat,b=B[st.base];h+=`<li style="display:block"><div class="day">Saturday</div></li><li><div class="t">${clock(st.satLeave)}</div><div class="stop home"><b>Leave Los Angeles</b></div></li>`;
+    S.legs.forEach(l=>{h+=`<li style="display:block"><div class="leg">Drive ${fm(l.d)}</div></li><li><div class="t">${clock(l.arr)}</div><div class="stop town"><b>${P[l.id].n}</b><br><span class="good">${fm(l.dur)}, until ${clock(l.dep)}</span>${l.id==="sp"&&l.arr>14*60+30?`<div class="warn">Arriving late — the park usually closes in the late afternoon; check hours.</div>`:""}</div></li>`});
+    h+=`<li style="display:block"><div class="leg">Drive ${fm(S.d)}</div></li><li><div class="t">${clock(S.arr)}</div><div class="stop base"><b>${b.n}</b><br><span class="good">${b.elev}</span>${b.icon==="tent"&&S.arr>DARK?`<div class="warn">Arriving after dark — setting up camp by headlamp.</div>`:""}</div></li>`;
+    h+=`<li style="display:block"><div class="day">Sunday</div></li><li><div class="t">${clock(st.sunStart)}</div><div class="stop base"><b>Head out from ${b.short.toLowerCase().startsWith("friend")?"our friend's place":b.short}</b></div></li>`}
+  else h=`<li><div class="t">${clock(st.start)}</div><div class="stop home"><b>Leave Los Angeles</b></div></li>`;
+  L.forEach((l,i)=>{const p=P[l.id],w=[];
+    if(p.k==="hike"&&l.dep>SUNSET-15)w.push(l.dep>DARK?"Finishes after dark — leave earlier or pick a shorter trail.":"Cutting it close to sunset (about 4:45 PM).");
+    if(l.id==="wc"&&l.arr>16*60+30)w.push("Arriving late for tastings — many close around 5–6 PM.");
+    if(l.id==="sp"&&l.arr>14*60+30)w.push("Arriving late — the park usually closes in the late afternoon; check hours.");
+    if(l.id==="po"&&l.dep>16*60)w.push("Observatory visitor area will likely be closed by then.");
+    h+=`<li style="display:block"><div class="leg">Drive ${fm(l.d)}${i===0&&!st.ov?" from LA":""}</div></li>`;
+    h+=`<li><div class="t">${clock(l.arr)}</div><div class="stop ${p.k}"><div class="stoprow"><div><b>${p.url?`<a href="${p.url}" target="_blank" rel="noopener" style="color:inherit">${p.n}</a>`:p.n}</b><br><span class="dur">${p.k==="hike"?p.mi+" mi · ":""}<button aria-label="Less time" data-dm="${i}">−</button> ${fm(l.dur)} <button aria-label="More time" data-dp="${i}">+</button></span> <span class="good">until ${clock(l.dep)}</span></div><div class="btns"><button class="icon" aria-label="Move up" data-up="${i}" ${i?"":"disabled"}>↑</button><button class="icon" aria-label="Move down" data-dn="${i}" ${i<L.length-1?"":"disabled"}>↓</button><button class="icon" aria-label="Remove" data-rm="${i}">×</button></div></div>${w.map(x=>`<div class="warn">${x}</div>`).join("")}</div></li>`;
+  });
+  h+=`<li style="display:block"><div class="leg">Drive home ${fm(c.back)}${st.traffic?` (incl. ${st.traffic} min Sunday traffic)`:""}</div></li>`;
+  h+=`<li><div class="t">${clock(c.home)}</div><div class="stop home"><b>Home in LA</b>${L.some(l=>P[l.id].k==="hike")?"":`<div class="warn">No trail yet — hiking is the priority!</div>`}</div></li>`;
+  $("plan").innerHTML=h;drawMap();
+}
+
+function renderOpts(){
+  const card=id=>{const p=P[id],on=st.stops.some(s=>s.id===id);
+    return `<div class="opt"><div class="pic">${ART(id)}</div><div><span class="tag ${p.k==="town"?"town":""}">${p.k==="hike"?p.lvl:(p.tag||"Explore")}</span></div><h3>${p.n}</h3><div class="meta">${p.k==="hike"?`${p.mi} miles · about ${fm(p.dur)} · `:`plan ~${fm(p.dur)} · `}${p.area} · ${fm(tt("la",id))} from LA</div><p>${p.d}</p><div class="row"><span style="display:flex;gap:6px;flex-wrap:wrap"><button data-see="${id}">On map</button>${p.url?`<a class="lnk" href="${p.url}" target="_blank" rel="noopener">AllTrails ↗</a>`:""}</span><button class="${on?"added":"primary"}" data-add="${id}">${on?"Added ✓":"Add to day"}</button></div></div>`};
+  $("hikes").innerHTML=IDS.filter(i=>P[i].k==="hike").map(card).join("");
+  $("towns").innerHTML=IDS.filter(i=>P[i].k==="town").map(card).join("");
+  $("stays").innerHTML=BIDS.map(id=>{const b=B[id],on=st.ov&&st.base===id;return `<div class="opt"><div class="pic">${ART(id)}</div><div><span class="tag ${b.kind==="Free"?"town":""}">${b.kind}</span></div><h3>${b.n}</h3><div class="meta">${b.elev} · ${fm(b.la)} from LA</div><p>${b.d}</p><div class="meta">To trails: ${IDS.filter(i=>P[i].k==="hike").map(i=>`${P[i].short} ${fm(tt(id,i))}`).join(" · ")}</div><div class="chk">${b.chk}</div><div class="row"><button data-see="${id}">On map</button><button class="${on?"added":"primary"}" data-stay="${id}">${on?"Staying here ✓":"Stay here"}</button></div></div>`}).join("");
+  const cols=["la",...IDS];
+  $("matrix").innerHTML=`<thead><tr><th></th>${cols.map(c=>`<th>${P[c].short}</th>`).join("")}</tr></thead><tbody>${cols.map(r=>`<tr><td><b>${P[r].short}</b></td>${cols.map(c=>`<td>${r===c?"—":fm(tt(r,c))}</td>`).join("")}</tr>`).join("")}</tbody>`;
+}
+
+// map
+const svg=$("map");
+const BOX={lo0:-117.43,lo1:-116.43,la0:33.03,la1:33.6},K=Math.cos(33.3*Math.PI/180);
+const ROADS=[
+ {n:"78",w:3,pts:[[33.12,-117.08],[33.1,-117.0],[33.07,-116.93],[33.04,-116.87],[33.06,-116.78],[33.11,-116.67]]},
+ {n:"I-5",w:4.5,pts:[[33.62,-117.68],[33.46,-117.66],[33.4,-117.58],[33.3,-117.46],[33.2,-117.37],[33.1,-117.3],[32.98,-117.255]]},
+ {n:"",w:2.5,pts:[[33.38,-117.13],[33.3,-117.25],[33.21,-117.36]]},
+ {n:"I-15",w:5,pts:[[33.6,-117.26],[33.53,-117.18],[33.49,-117.145],[33.4,-117.13],[33.3,-117.12],[33.15,-117.1],[33.02,-117.08]]},
+ {n:"79",w:3.5,pts:[[33.49,-117.14],[33.48,-117.06],[33.465,-116.975],[33.43,-116.89],[33.39,-116.8],[33.33,-116.7],[33.285,-116.635],[33.22,-116.64],[33.13,-116.67],[33.11,-116.66],[33.078,-116.602]]},
+ {n:"76",w:3,pts:[[33.38,-117.13],[33.36,-117.07],[33.33,-116.98],[33.305,-116.92],[33.27,-116.82],[33.23,-116.72],[33.2,-116.68],[33.13,-116.67]]},
+ {n:"",w:2.5,pts:[[33.305,-116.92],[33.32,-116.895],[33.335,-116.88],[33.345,-116.868]]},
+ {n:"",w:2.5,pts:[[33.335,-116.88],[33.333,-116.905]]},
+ {n:"",w:2.5,pts:[[33.335,-116.88],[33.32,-116.83],[33.29,-116.79],[33.27,-116.8]]},
+ {n:"",w:2.5,pts:[[33.47,-117.1],[33.42,-117.09],[33.36,-117.07]]},
+ {n:"",w:2.5,pts:[[33.5,-117.14],[33.53,-117.09],[33.545,-117.05],[33.53,-117.0],[33.48,-116.98]]}
+];
+const COAST=[[33.75,-118.0],[33.6,-117.86],[33.46,-117.7],[33.42,-117.62],[33.36,-117.55],[33.3,-117.47],[33.2,-117.39],[33.1,-117.32],[33.0,-117.28],[32.85,-117.26],[32.7,-117.25]];
+const NF=[
+ {lab:["Cleveland","National Forest"],at:[33.405,-116.86],pts:[[33.515,-117.06],[33.5,-116.96],[33.46,-116.9],[33.43,-116.85],[33.4,-116.8],[33.36,-116.77],[33.3,-116.76],[33.26,-116.82],[33.27,-116.9],[33.3,-116.97],[33.34,-117.02],[33.41,-117.07],[33.47,-117.09]]},
+ {lab:["Cleveland NF"],at:[33.53,-117.42],pts:[[33.7,-117.5],[33.66,-117.36],[33.6,-117.29],[33.52,-117.27],[33.47,-117.33],[33.48,-117.43],[33.55,-117.52]]},
+ {lab:["Cleveland NF"],at:[33.0,-116.74],pts:[[33.17,-116.8],[33.13,-116.7],[33.06,-116.63],[32.98,-116.56],[32.9,-116.6],[32.9,-116.82],[33.02,-116.86],[33.1,-116.84]]}];
+const ABDSP=[[33.5,-116.43],[33.42,-116.45],[33.35,-116.5],[33.27,-116.52],[33.2,-116.49],[33.13,-116.5],[33.05,-116.47],[32.97,-116.43],[32.8,-116.35],[32.8,-115.6],[33.5,-115.6]];
+const REF=[["Oceanside",33.196,-117.37,"r"],["Escondido",33.125,-117.086,"l"],["Fallbrook",33.377,-117.25,"l"],];
+const CA=[[42,-124.2],[42,-120],[39,-120],[35,-114.6],[32.72,-114.72],[32.53,-117.12],[33.4,-117.6],[33.75,-118.3],[34.03,-118.8],[34.45,-120.47],[35.6,-121.3],[36.6,-121.9],[37.8,-122.5],[38.9,-123.7],[40.4,-124.4]];
+const inPoly=(la,lo,pts)=>{let c=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const[a1,o1]=pts[i],[a2,o2]=pts[j];if((a1>la)!==(a2>la)&&lo<(o2-o1)*(la-a1)/(a2-a1)+o1)c=!c}return c};
+const HILLS=[[33.42,-116.98,.09,.05,""],[33.345,-116.87,.11,.06,""],[33.31,-116.58,.08,.05,""],[33.12,-116.56,.07,.06,"Volcan Mtn"],[33.2,-116.95,.06,.04,""],[33.55,-116.85,.08,.05,""]];
+function drawMap(){
+  const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
+  const m=W<520?10:18,sx=(W-2*m)/((BOX.lo1-BOX.lo0)*K),sy=(H-2*m)/(BOX.la1-BOX.la0),s=Math.min(sx,sy);
+  const ox=(W-(BOX.lo1-BOX.lo0)*K*s)/2,oy=(H-(BOX.la1-BOX.la0)*s)/2;
+  const X=lo=>ox+(lo-BOX.lo0)*K*s,Y=la=>oy+(BOX.la1-la)*s;
+  const xy=id=>B[id]?[X(B[id].lon),Y(B[id].lat)]:id==="la"?[Math.max(14,X(-117.36)),Math.max(14,Y(33.59))]:[X(P[id].lon),Y(P[id].lat)];
+  const small=W<520,fs=small?12:14;
+  let g="";
+  const path=a=>"M"+a.map(([la,lo])=>`${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join("L")+"Z";
+  g+=`<defs><pattern id="stip" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="var(--town)" fill-opacity=".35"/><circle cx="6.5" cy="6.5" r=".8" fill="var(--town)" fill-opacity=".25"/></pattern><g id="tree"><path d="M0,-7 L5,3 L-5,3Z" fill="var(--hike)" fill-opacity=".55"/><rect x="-.8" y="3" width="1.6" height="2.5" fill="var(--hike)" fill-opacity=".55"/></g></defs>`;
+  // ocean
+  g+=`<path d="${path([...COAST,[32.7,-118.5],[33.75,-118.5]])}" fill="var(--sea)"/>`;
+  for(let k=1;k<=3;k++)g+=`<path d="M${COAST.map(([la,lo])=>`${X(lo-.025*k).toFixed(1)},${Y(la).toFixed(1)}`).join("L")}" fill="none" stroke="#fff" stroke-opacity="${.45-.12*k}" stroke-width="1.5"/>`;
+  {const x=X(-117.345),y=Y(33.1);g+=`<text x="${x}" y="${y}" text-anchor="end" font-size="14" font-style="italic" fill="var(--ink)" fill-opacity=".7" transform="rotate(-65 ${x} ${y})" style="stroke:none">Pacific Ocean</text>`}
+  // desert
+  g+=`<path d="${path(ABDSP)}" fill="var(--desert)"/><path d="${path(ABDSP)}" fill="url(#stip)" stroke="var(--town)" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  // national forest
+  NF.forEach(n=>{g+=`<path d="${path(n.pts)}" fill="var(--nf)" fill-opacity=".55" stroke="var(--hike)" stroke-width="1.5" stroke-dasharray="7 4"/>`;
+    let r=7+n.pts.length;const rnd=()=>(r=r*16807%2147483647)/2147483647;const la0=Math.min(...n.pts.map(p=>p[0])),la1=Math.max(...n.pts.map(p=>p[0])),lo0=Math.min(...n.pts.map(p=>p[1])),lo1=Math.max(...n.pts.map(p=>p[1]));
+    for(let i=0;i<110;i++){const la=la0+rnd()*(la1-la0),lo=lo0+rnd()*(lo1-lo0);if(!inPoly(la,lo,n.pts)||IDS.some(id=>Math.abs(P[id].lat-la)<.016&&Math.abs(P[id].lon-lo)<.03))continue;const sc=.8+rnd()*.6;g+=`<use href="#tree" transform="translate(${X(lo).toFixed(1)},${Y(la).toFixed(1)}) scale(${sc.toFixed(2)})"/>`}});
+  // hills (contours)
+  HILLS.forEach(([la,lo,rx,ry,name])=>{for(let k=4;k>=1;k--)g+=`<ellipse cx="${X(lo)}" cy="${Y(la)}" rx="${rx*K*s*k/4}" ry="${ry*s*k/4}" transform="rotate(-28 ${X(lo)} ${Y(la)})" fill="var(--hill)" fill-opacity="${.35+.15*(4-k)}" stroke="var(--line)" stroke-width="1"/>`;
+    if(name&&!small)g+=`<text x="${X(lo)}" y="${Y(la)+ry*s*.9+14}" text-anchor="middle" font-size="13" font-style="italic" fill="var(--mut)">${name}</text>`});
+  NF.forEach(n=>{if(small)return;const[x,y]=[X(n.at[1]),Y(n.at[0])];n.lab.forEach((t,i)=>g+=`<text x="${x}" y="${y+i*15}" text-anchor="middle" font-size="13" font-weight="600" font-style="italic" fill="var(--hike)">${t}</text>`)});
+  {const x=Math.min(X(-116.415),W-14),y=Y(33.2);g+=`<text x="${x}" y="${y}" text-anchor="middle" font-size="${small?12:13}" font-weight="600" font-style="italic" fill="var(--town)" transform="rotate(-90 ${x} ${y})">Anza-Borrego Desert State Park</text>`}
+  // lakes
+  g+=`<ellipse cx="${X(-116.76)}" cy="${Y(33.235)}" rx="${.035*K*s}" ry="${.018*s}" fill="var(--lake)"/><ellipse cx="${X(-116.99)}" cy="${Y(33.49)}" rx="${.025*K*s}" ry="${.01*s}" fill="var(--lake)"/>`;
+  if(!small)g+=`<text x="${X(-116.76)}" y="${Y(33.235)+.018*s+14}" text-anchor="middle" font-size="12" fill="var(--mut)">Lake Henshaw</text>`;
+  // roads
+  ROADS.forEach(r=>{const d="M"+r.pts.map(([la,lo])=>`${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join("L");
+    g+=`<path d="${d}" fill="none" stroke="var(--line)" stroke-width="${r.w+2.5}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="var(--road)" stroke-width="${r.w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if(r.n){const q=r.pts[r.n==="I-5"?5:Math.floor(r.pts.length/2)];const qx=Math.min(Math.max(X(q[1]),20),W-20);g+=`<rect x="${qx-15}" y="${Y(q[0])-9}" width="30" height="18" rx="4" fill="var(--pine)"/><text x="${qx}" y="${Y(q[0])+4}" text-anchor="middle" font-size="12" font-weight="600" fill="#fff" style="stroke:none">${r.n}</text>`}});
+  // reference towns
+  REF.forEach(([n,la,lo,sd])=>{const x=X(lo),y=Y(la);if(x<6||x>W-6)return;g+=`<circle cx="${x}" cy="${y}" r="3" fill="var(--mut)"/>`;if(!small||n==="Oceanside"||n==="Escondido")g+=`<text x="${sd==="l"?x-6:x+6}" y="${y+4}" text-anchor="${sd==="l"?"end":"start"}" font-size="12" fill="var(--mut)">${n}</text>`});
+  // CA inset
+  {const iw=small?58:74,ih=iw*1.15,ix=W-iw-10,iy=10,cl=[-124.6,-114.1],ca=[32.4,42.1],cx=lo=>ix+6+(lo-cl[0])/(cl[1]-cl[0])*(iw-12),cy=la=>iy+6+(ca[1]-la)/(ca[1]-ca[0])*(ih-12);
+   g+=`<rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="8" fill="var(--card)" stroke="var(--line)"/><path d="M${CA.map(([la,lo])=>`${cx(lo).toFixed(1)},${cy(la).toFixed(1)}`).join("L")}Z" fill="var(--hill)" stroke="var(--mut)" stroke-width="1"/><rect x="${cx(BOX.lo0)}" y="${cy(BOX.la1)}" width="${cx(BOX.lo1)-cx(BOX.lo0)}" height="${cy(BOX.la0)-cy(BOX.la1)}" fill="var(--acc)" fill-opacity=".35" stroke="var(--acc)" stroke-width="1.5"/><circle cx="${cx(-118.24)}" cy="${cy(34.05)}" r="2.2" fill="var(--ink)"/><text x="${cx(-118.24)-4}" y="${cy(34.05)-3}" text-anchor="end" font-size="11" fill="var(--ink)" style="stroke:var(--card)">LA</text>`}
+  // LA marker
+  const [lx,ly]=xy("la");
+  g+=`<g class="poi" tabindex="0" data-pt="la" role="button" aria-label="Los Angeles"><path d="M${lx+20},${ly+20} L${lx},${ly} M${lx},${ly} l10,1 M${lx},${ly} l1,10" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/><text x="${lx+22}" y="${ly+8}" font-size="${fs}" font-weight="600" fill="var(--ink)">to Los Angeles</text></g>`;
+  // edges
+  const chip=(x,y,txt,col,w=44)=>`<rect x="${x-w/2}" y="${y-11}" width="${w}" height="22" rx="11" fill="${col}"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="600" fill="#fff" style="stroke:none">${txt}</text>`;
+  let e="",chips="";
+  if(st.sel){const a=xy(st.sel);["la",...IDS,...(B[st.sel]?[]:st.ov?[st.base]:[])].filter(i=>i!==st.sel).forEach(i=>{const b=xy(i),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+      e+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--pine)" stroke-opacity=".5" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+      chips+=chip(i==="la"?a[0]+(b[0]-a[0])*.35:mx,i==="la"?a[1]+(b[1]-a[1])*.35:my,fm(tt(st.sel,i)).replace(" ",""),"var(--pine)")});}
+  else{if(st.ov){const sq=["la",...(st.satStop?[st.satStop]:[]),st.base];for(let i=0;i<sq.length-1;i++){const a=xy(sq[i]),b=xy(sq[i+1]);
+      e+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--pine)" stroke-width="3" stroke-dasharray="2 6" stroke-linecap="round"/>`;const f=i===0?.3:.5;}}
+  if(st.stops.length){const seq=[st.ov?st.base:"la",...st.stops.map(s=>s.id),"la"];
+    for(let i=0;i<seq.length-1;i++){const a=xy(seq[i]),b=xy(seq[i+1]);if(seq[i]===seq[i+1])continue;
+      const back=i===seq.length-2,mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+      e+=`<path class="route" d="M${a[0]},${a[1]} Q${mx},${my} ${b[0]},${b[1]}" fill="none" stroke="var(--acc)" stroke-width="${back?2.5:4}" stroke-opacity="${back?.6:1}" stroke-linecap="round"/>`;
+      const f=back?.55:.42,cx=a[0]+(b[0]-a[0])*f,cy=a[1]+(b[1]-a[1])*f;if(Math.hypot(b[0]-a[0],b[1]-a[1])>50)chips+=chip(cx,cy,fm(tt(seq[i],seq[i+1])+(back?st.traffic:0)).replace(" ",""),"var(--acc)")}}}
+  // points
+  let pts="";IDS.forEach(id=>{const p=P[id],[x,y]=xy(id),on=st.stops.findIndex(s=>s.id===id),col=p.k==="hike"?"var(--hike)":"var(--town)",sel=st.sel===id,r=sel?12:9;
+    const lx2=p.side==="l"?x-r-6:x+r+6,anc=p.side==="l"?"end":"start";
+    pts+=`<g class="poi" tabindex="0" role="button" data-pt="${id}" aria-label="${p.n}"><circle cx="${x}" cy="${y}" r="22" fill="transparent"/><circle class="ring" cx="${x}" cy="${y}" r="${r+4}" fill="var(--land)" stroke="${sel?"var(--acc)":"transparent"}" stroke-width="2"/><circle cx="${x}" cy="${y}" r="${r}" fill="${col}"/>${on>=0?`<text x="${x}" y="${y+4.5}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" style="stroke:none">${on+1}</text>`:""}<text x="${lx2}" y="${y+5}" text-anchor="${anc}" font-size="${fs}" font-weight="600" fill="var(--ink)">${p.short}</text></g>`});
+  let tents="";BIDS.forEach(id=>{const b=B[id],[x,y]=xy(id),on=st.ov&&st.base===id,sel=st.sel===id,c=on||sel?"var(--pine)":"var(--mut)",op=st.ov||sel?1:.55;
+    const ic=b.icon==="tent"?`<path d="M${x-10},${y+7} L${x},${y-10} L${x+10},${y+7}Z" fill="${c}" stroke="var(--land)" stroke-width="2" stroke-linejoin="round"/><path d="M${x},${y-1} L${x-3.5},${y+7} L${x+3.5},${y+7}Z" fill="var(--land)"/>`:`<path d="M${x-9},${y-1} L${x},${y-10} L${x+9},${y-1} L${x+7},${y-1} L${x+7},${y+8} L${x-7},${y+8} L${x-7},${y-1}Z" fill="${c}" stroke="var(--land)" stroke-width="2" stroke-linejoin="round"/><rect x="${x-2.5}" y="${y+2}" width="5" height="6" fill="var(--land)"/>`;
+    tents+=`<g class="poi" tabindex="0" role="button" data-pt="${id}" aria-label="${b.n}" opacity="${op}"><circle cx="${x}" cy="${y}" r="14" fill="transparent"/>${ic}${on||sel?`<text x="${x-8}" y="${y-15}" font-size="${fs}" font-weight="600" fill="var(--pine)" style="fill:light-dark(#1d3b2f,#8fd4a8)">${on?"Sat night: ":""}${b.short}</text>`:""}</g>`});
+  svg.innerHTML=g+e+tents+chips+pts;
+  $("hint").textContent=st.sel?`Drive times from ${nm(st.sel)}. Tap it again to go back to our route.`:"Tap any point to see drive times from it. The orange line is our current plan.";
+}
+const io=new IntersectionObserver(es=>{for(const e of es)$("mbar").classList.toggle("off",e.isIntersecting)},{threshold:.12});io.observe(document.querySelector(".panel"));
+const ro=new ResizeObserver(drawMap);ro.observe($("fig"));
+
+const render=()=>{save();renderPlan();renderOpts()};
+const add=id=>{const i=st.stops.findIndex(s=>s.id===id);if(i>=0)st.stops.splice(i,1);else{const p=P[id];const hikes=st.stops.filter(s=>P[s.id].k==="hike").length;if(p.k==="hike")st.stops.splice(hikes,0,{id,dur:p.dur});else st.stops.push({id,dur:p.dur})}st.sel=null;render()};
+document.addEventListener("click",ev=>{const b=ev.target.closest("button,[data-pt]");if(!b)return;const d=b.dataset;
+  if(d.add)add(d.add);
+  else if(d.mode!=null){st.ov=d.mode==="1";st.sel=null;render()}
+  else if(d.stay){st.ov=true;st.base=d.stay;st.sel=null;render();document.querySelector(".panel").scrollIntoView({behavior:"smooth"})}
+  else if(d.see){st.sel=d.see;drawMap();$("fig").scrollIntoView({behavior:"smooth",block:"center"})}
+  else if(d.pt){st.sel=st.sel===d.pt?null:d.pt;drawMap()}
+  else if(d.p!=null){const p=PRESETS[+d.p];st.stops=p.s.map(id=>({id,dur:P[id].dur}));st.ov=!!p.ov;if(p.ov){st.base=p.base;st.satStop=p.satStop;st.satLeave=p.satLeave;st.sunStart=p.sun}else st.start=p.t;st.sel=null;render()}
+  else if(d.rm!=null){st.stops.splice(+d.rm,1);render()}
+  else if(d.up!=null){const i=+d.up;[st.stops[i-1],st.stops[i]]=[st.stops[i],st.stops[i-1]];render()}
+  else if(d.dn!=null){const i=+d.dn;[st.stops[i+1],st.stops[i]]=[st.stops[i],st.stops[i+1]];render()}
+  else if(d.dm!=null){const s=st.stops[+d.dm];s.dur=Math.max(30,s.dur-30);render()}
+  else if(d.dp!=null){st.stops[+d.dp].dur+=30;render()}
+  else if(b.id==="mbGo")document.querySelector(".panel").scrollIntoView({behavior:"smooth",block:"start"});
+  else if(b.id==="clear"){st.stops=[];st.sel=null;render()}
+  else if(b.id==="copy"){const c=compute();let t="";if(st.ov){const S=c.sat;t+=`Saturday\n${clock(st.satLeave)} Leave LA\n`;S.legs.forEach(l=>t+=`${clock(l.arr)} ${P[l.id].n} (${fm(l.dur)})\n`);t+=`${clock(S.arr)} Arrive ${B[st.base].n}\n\nSunday\n${clock(st.sunStart)} Head out\n`}else t+=`Sunday day trip\n${clock(st.start)} Leave LA\n`;c.legs.forEach(l=>t+=`${clock(l.arr)} ${P[l.id].n} (${fm(l.dur)}, drive ${fm(l.d)})\n`);t+=`${clock(c.home)} Home in LA`;
+    navigator.clipboard?.writeText(t).then(()=>{b.textContent="Copied ✓";setTimeout(()=>b.textContent="Copy plan",1500)}).catch(()=>{b.textContent="Copy blocked"})}
+});
+document.addEventListener("keydown",ev=>{const g=ev.target.closest?.("[data-pt]");if(g&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();g.dispatchEvent(new MouseEvent("click",{bubbles:true}))}});
+$("start").addEventListener("change",e=>{st.start=+e.target.value;render()});
+[["base","base",String],["sat","satLeave",Number],["satStop","satStop",String],["sun","sunStart",Number]].forEach(([id,k,f])=>$(id).addEventListener("change",e=>{st[k]=f(e.target.value);render()}));
+$("traffic").addEventListener("change",e=>{st.traffic=+e.target.value;render()});
+render();
+}
+</script>
+</body>
+</html>
